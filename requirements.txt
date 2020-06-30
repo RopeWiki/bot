@@ -1,0 +1,2 @@
+mwclient~=0.10.1
+getch~=1.0
