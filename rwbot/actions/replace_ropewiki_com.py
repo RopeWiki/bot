@@ -7,15 +7,20 @@ class BotAction(AbstractBotAction):
   """Finds instances of "ropewiki.com" and replaces them with {{SERVER}} or {{SERVERNAME}}."""
 
   def propose_modifications(self, site):
-    hits = site.search(search='ropewiki.com', what='text')
     changes = []
-    for hit in hits:
-      title = hit['title']
-      old_text = site.pages[title].text()
-      new_text = replace_ropewiki(old_text)
-      if new_text != old_text:
-        change = ChangePageText(title, new_text, 'Replace ropewiki.com with SERVER and SERVERNAME magic words')
-        changes.append(change)
+    for namespace, namespace_name in site.namespaces.items():
+      if namespace < 0 or 'talk' in namespace_name:
+        continue
+      hits = site.search(search='ropewiki.com', namespace=namespace, what='text')
+      for hit in hits:
+        title = hit['title']
+        if title[-3:] == '.js':
+          continue
+        old_text = site.pages[title].text()
+        new_text = replace_ropewiki(old_text)
+        if new_text != old_text:
+          change = ChangePageText(title, new_text, 'Replace ropewiki.com with SERVER and SERVERNAME magic words')
+          changes.append(change)
     return changes
 
 
